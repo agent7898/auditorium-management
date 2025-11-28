@@ -1,0 +1,93 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>College Event Management</title>
+    <!-- Google font for a cleaner UI -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- cache-busted stylesheet to avoid stale CSS in browser -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2">
+    <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml">
+    <link rel="shortcut icon" href="{% static 'images/favicon.svg' %}" />
+</head>
+<body{% if page_bg_url %} style="--page-bg-url: url('{{ page_bg_url }}'); --page-bg-overlay: {{ page_bg_overlay|default:0.14 }};"{% endif %}>
+    <header class="header">
+        <div class="brand">
+            <a href="{% url 'home' %}">College Events</a>
+        </div>
+        <nav class="nav">
+            {% if user.is_authenticated %}
+                <a href="{% url 'event_list' %}">Events</a>
+                <a href="{% url 'booking_create' %}">Book Auditorium</a>
+                <span class="role-badge">Role: {{ user_profile_role|default:'student' }}</span>
+                <a href="{% url 'my_activities' %}">My Activities</a>
+                {% if user.is_staff %}
+                    <a href="{% url 'event_create' %}">Create Event</a>
+                    <a href="{% url 'booking_list_admin' %}">Requests</a>
+                {% else %}
+                    {% if user_profile_role == 'organizer' %}
+                        <a href="{% url 'event_create' %}">Create Event</a>
+                    {% endif %}
+                    {% if user_profile_role == 'auditorium_manager' %}
+                        <a href="{% url 'booking_list_admin' %}">Requests</a>
+                    {% endif %}
+                {% endif %}
+
+                <form method="post" action="{% url 'logout' %}" style="display:inline">
+                    {% csrf_token %}
+                    <button class="logout-btn" type="submit">Logout</button>
+                </form>
+            {% else %}
+                <!-- unauthenticated users are prompted to login when clicking actions -->
+                <a href="{% url 'login' %}">Events</a>
+                <a href="{% url 'login' %}">Book Auditorium</a>
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'signup' %}">Sign up</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Toast messages (rendered by Django messages) -->
+    <div id="toast-container" aria-live="polite" aria-atomic="true">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="toast message {{ message.tags }}" role="status">
+                    <div class="toast-content">{{ message }}</div>
+                    <button class="toast-close" aria-label="Close">×</button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <script>
+        // Auto-dismiss toast messages after 5s and allow manual close
+        (function(){
+            const container = document.getElementById('toast-container');
+            if(!container) return;
+            Array.from(container.querySelectorAll('.toast')).forEach(function(toast){
+                const close = toast.querySelector('.toast-close');
+                const timeout = setTimeout(function(){
+                    toast.style.transform = 'translateX(20px)';
+                    toast.style.opacity = '0';
+                    setTimeout(()=>toast.remove(),300);
+                }, 5000);
+                close && close.addEventListener('click', function(){
+                    clearTimeout(timeout);
+                    toast.remove();
+                });
+            });
+        })();
+    </script>
+
+    <footer class="footer">
+        <p>© {% now "Y" %} College Event Management</p>
+    </footer>
+
+</body>
+</html>

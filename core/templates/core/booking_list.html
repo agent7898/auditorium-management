@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- Admin booking list background banner -->
+<div class="page-bg">
+    <div class="page-bg-content">
+        <h1>Auditorium Booking Requests</h1>
+        <p>Review and manage booking requests from students</p>
+    </div>
+</div>
+
+<div class="card">
+    <h2>All Auditorium Booking Requests</h2>
+    {% if bookings %}
+        <table class="table">
+            <tr>
+                <th>Purpose</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Requested By</th>
+                <th>Dept</th>
+                <th>Audience</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+            {% for b in bookings %}
+            <tr>
+                <td>{{ b.purpose }}</td>
+                <td>{{ b.event_date }}</td>
+                <td>{{ b.start_time }} – {{ b.end_time }}</td>
+                <td>{{ b.requested_by.username }}</td>
+                <td>{{ b.department }}</td>
+                <td>{{ b.expected_audience }}</td>
+                <td>{{ b.get_status_display }}</td>
+                <td><a class="btn" href="{% url 'booking_update_status' b.pk %}">Update</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No booking requests.</p>
+    {% endif %}
+</div>
+{% endblock %}

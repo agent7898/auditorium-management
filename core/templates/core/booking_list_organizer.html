@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- Organizer booking list background banner -->
+<div class="page-bg">
+    <div class="page-bg-content">
+        <h1>Booking Requests</h1>
+        <p>Manage and approve auditorium booking requests</p>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Booking Requests (Organizer)</h2>
+    <p class="muted">As an organizer you can Accept or Reject booking requests for your department. Use the Update action or the quick buttons below.</p>
+    {% if bookings %}
+        <table class="table">
+            <tr>
+                <th>Purpose</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Requested By</th>
+                <th>Dept</th>
+                <th>Audience</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+            {% for b in bookings %}
+            <tr>
+                <td>{{ b.purpose }}</td>
+                <td>{{ b.event_date }}</td>
+                <td>{{ b.start_time }} – {{ b.end_time }}</td>
+                <td>{{ b.requested_by.username }}</td>
+                <td>{{ b.department }}</td>
+                <td>{{ b.expected_audience }}</td>
+                <td>{{ b.get_status_display }}</td>
+                <td style="display:flex;gap:8px;align-items:center">
+                    <a class="btn" href="{% url 'booking_update_status_organizer' b.pk %}">Update</a>
+                    <form method="post" action="{% url 'booking_update_status_organizer' b.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" value="APPROVED">
+                        <button class="btn" type="submit">Accept</button>
+                    </form>
+                    <form method="post" action="{% url 'booking_update_status_organizer' b.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" value="REJECTED">
+                        <button class="btn secondary" type="submit">Reject</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No booking requests.</p>
+    {% endif %}
+</div>
+{% endblock %}

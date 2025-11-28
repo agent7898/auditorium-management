@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+    <h2>Sign Up</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- Show global (non-field) errors if any -->
+        {% if form.non_field_errors %}
+            <div class="message">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <!-- Render each field with its errors -->
+        {% for field in form %}
+            <p>
+                {{ field.label_tag }}<br>
+                {{ field }}
+                {% if field.help_text %}
+                    <br><small style="color:var(--muted)">{{ field.help_text }}</small>
+                {% endif %}
+                {% if field.errors %}
+                    <br><span style="color:red;">{{ field.errors|striptags }}</span>
+                {% endif %}
+            </p>
+        {% endfor %}
+
+        <button class="btn" type="submit">Create Account</button>
+    </form>
+
+    <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+</div>
+{% endblock %}

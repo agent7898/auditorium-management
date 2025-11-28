@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- Event detail background banner -->
+<div class="page-bg">
+    <div class="page-bg-content">
+        <h1>{{ event.title }}</h1>
+        <p>{{ event.department }} • {{ event.event_date }}</p>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Event Details</h2>
+    <p><strong>Department:</strong> {{ event.department }}</p>
+    <p><strong>Date:</strong> {{ event.event_date }} | {{ event.start_time }} – {{ event.end_time }}</p>
+    <p><strong>Venue:</strong> {{ event.venue }}</p>
+    <p>{{ event.description }}</p>
+    <p><strong>Total Seats:</strong> {{ event.total_seats }} |
+       <strong>Booked:</strong> {{ event.booked_seats }} |
+       <strong>Available:</strong> {{ event.available_seats }}</p>
+    <p><strong>Status:</strong> {{ event.get_status_display }}</p>
+
+    {% if user.is_authenticated %}
+        {% if ticket %}
+            <p><strong>Your Ticket Status:</strong> {{ ticket.get_status_display }}</p>
+        {% elif event.status == 'OPEN' and event.available_seats > 0 %}
+                <h3>Seat Map</h3>
+                <p>Total seats: {{ event.total_seats }}</p>
+                <div id="seat-map-container">
+                    <div id="seat-map"></div>
+                    <div style="margin-top:8px">Selected seat: <span id="selected-seat">—</span></div>
+                </div>
+                <form method="post" action="{% url 'event_register' event.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" id="seat" name="seat" />
+                    <button class="btn" id="register-btn" type="submit" disabled>Register for this Event</button>
+                </form>
+
+                <script>
+                    (function(){
+                        const totalSeats = {{ event.total_seats }};
+                        // number of rows to display (A..J)
+                        const rows = 10;
+                        const cols = Math.ceil(totalSeats / rows);
+                        const booked = {{ booked_seats|safe }} || [];
+
+                        const seatMap = document.getElementById('seat-map');
+                        const selectedSeatSpan = document.getElementById('selected-seat');
+                        const seatInput = document.getElementById('seat');
+                        const registerBtn = document.getElementById('register-btn');
+
+                        // helper to create seat id like A1, B3
+                        function seatId(r, c){
+                            return String.fromCharCode(65 + r) + (c+1);
+                        }
+
+                        for(let r=0;r<rows;r++){
+                            const rowEl = document.createElement('div');
+                            rowEl.className = 'seat-row';
+                            for(let c=0;c<cols;c++){
+                                const idx = r*cols + c;
+                                if(idx >= totalSeats) break;
+                                const id = seatId(r,c);
+                                const btn = document.createElement('button');
+                                btn.type = 'button';
+                                btn.className = 'seat';
+                                btn.textContent = id;
+                                if(booked.indexOf(id) !== -1){
+                                    btn.classList.add('booked');
+                                    btn.disabled = true;
+                                } else {
+                                    btn.addEventListener('click', function(){
+                                        // unselect currently selected
+                                        const prev = document.querySelector('.seat.selected');
+                                        if(prev) prev.classList.remove('selected');
+                                        btn.classList.add('selected');
+                                        selectedSeatSpan.textContent = id;
+                                        seatInput.value = id;
+                                        registerBtn.disabled = false;
+                                    });
+                                }
+                                rowEl.appendChild(btn);
+                            }
+                            seatMap.appendChild(rowEl);
+                        }
+                    })();
+                </script>
+        {% else %}
+            <p>Registration closed or no seats available.</p>
+        {% endif %}
+    {% else %}
+        <p>Please <a href="{% url 'login' %}">login</a> to register.</p>
+    {% endif %}
+</div>
+{% endblock %}

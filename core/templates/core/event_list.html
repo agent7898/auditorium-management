@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- Background banner for events page -->
+<div class="page-bg">
+    <div class="page-bg-content">
+        <h1>Upcoming Events</h1>
+        <p>Browse and register for exciting campus events</p>
+    </div>
+</div>
+
+<div class="hero">
+    <div class="subtitle">Search and discover events happening on campus</div>
+    <div class="search-box">
+        <input id="events-search" placeholder="Search events by title or department..." />
+    </div>
+</div>
+
+<div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+        <h2>All Events</h2>
+        <div>
+            {% if user.is_authenticated %}
+                {% if user.is_staff or user_profile_role == 'organizer' %}
+                    <a class="btn" href="{% url 'event_create' %}">Create Event</a>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    <div class="events-grid" id="events-grid">
+        {% for event in events %}
+        <div class="event-card" data-title="{{ event.title|lower }}" data-dept="{{ event.department|lower }}">
+            <div>
+                <h3>{{ event.title }}</h3>
+                <div class="event-meta">{{ event.event_date }} • {{ event.start_time }}–{{ event.end_time }} • {{ event.venue }}</div>
+                <p>{{ event.description|truncatechars:120 }}</p>
+            </div>
+            <div class="event-footer">
+                <div class="pill">Seats: {{ event.available_seats }} / {{ event.total_seats }}</div>
+                <div>
+                    <a class="btn" href="{% url 'event_detail' event.pk %}">Details</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    // simple client-side search for events
+    (function(){
+        const input = document.getElementById('events-search');
+        const grid = document.getElementById('events-grid');
+        input.addEventListener('input', function(){
+            const q = this.value.trim().toLowerCase();
+            Array.from(grid.children).forEach(card=>{
+                const title = card.dataset.title || '';
+                const dept = card.dataset.dept || '';
+                if(!q || title.includes(q) || dept.includes(q)) card.style.display='flex'; else card.style.display='none';
+            });
+        });
+    })();
+</script>
+
+{% endblock %}

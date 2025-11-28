@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- Booking form background banner -->
+<div class="page-bg">
+    <div class="page-bg-content">
+        <h1>{% if admin_update or organizer_update %}Update Booking{% else %}Book Auditorium{% endif %}</h1>
+    </div>
+</div>
+
+<div class="card">
+    {% if admin_update or organizer_update %}
+        <h2>Update Booking Status</h2>
+        <form method="post">
+            {% csrf_token %}
+            <p><strong>Purpose:</strong> {{ booking.purpose }}</p>
+            <p><strong>Date:</strong> {{ booking.event_date }} ({{ booking.start_time }} – {{ booking.end_time }})</p>
+            <p><strong>Requested by:</strong> {{ booking.requested_by.username }}</p>
+
+            <label for="status">Status</label>
+            <select name="status" id="status">
+                <option value="PENDING" {% if booking.status == 'PENDING' %}selected{% endif %}>Pending</option>
+                <option value="APPROVED" {% if booking.status == 'APPROVED' %}selected{% endif %}>Approved</option>
+                <option value="REJECTED" {% if booking.status == 'REJECTED' %}selected{% endif %}>Rejected</option>
+            </select>
+
+            <label for="remarks">Remarks</label>
+            <textarea name="remarks" id="remarks">{{ booking.remarks }}</textarea>
+
+            <div style="margin-top:12px">
+                <button class="btn" type="submit">Update</button>
+                <a class="btn secondary" href="{% if organizer_update %}{% url 'booking_list_organizer' %}{% else %}{% url 'booking_list_admin' %}{% endif %}">Cancel</a>
+            </div>
+        </form>
+    {% else %}
+        <h2>Auditorium Booking Request</h2>
+        <form method="post">
+            {% csrf_token %}
+            <p><label>Department</label>{{ form.department }}</p>
+            <p><label>Purpose (Event title)</label>{{ form.purpose }}</p>
+            <p><label>Event Date</label>{{ form.event_date }}</p>
+            <p style="display:flex;gap:8px;"><span style="flex:1"><label>Start Time</label>{{ form.start_time }}</span><span style="flex:1"><label>End Time</label>{{ form.end_time }}</span></p>
+            <p><label>Expected Audience</label>{{ form.expected_audience }}</p>
+            <p style="color:var(--muted);font-size:0.95rem">Auditorium capacity: <strong>{{ auditorium_capacity|default:500 }}</strong> seats — requests larger than this will be rejected.</p>
+            <p style="color:var(--muted);font-size:0.95rem">Provide clear purpose so organizers can approve quickly.</p>
+            <button class="btn" type="submit">Submit Request</button>
+        </form>
+    {% endif %}
+</div>
+{% endblock %}

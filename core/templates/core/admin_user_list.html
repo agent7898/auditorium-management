@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+    <h2>Users (Admin)</h2>
+    {% if profiles %}
+        <table class="table">
+            <tr>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Department</th>
+                <th>Action</th>
+            </tr>
+            {% for p in profiles %}
+            <tr>
+                <td>{{ p.user.username }}</td>
+                <td>{{ p.get_role_display }}</td>
+                <td>{{ p.department }}</td>
+                <td>
+                    <form method="post" action="{% url 'admin_user_delete' p.user.pk %}" style="display:inline">
+                        {% csrf_token %}
+                        <button class="btn secondary" type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No user profiles found.</p>
+    {% endif %}
+</div>
+{% endblock %}

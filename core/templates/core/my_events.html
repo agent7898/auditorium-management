@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- My Activities background banner -->
+<div class="page-bg">
+    <div class="page-bg-content">
+        <h1>My Activities</h1>
+        <p>Track your event registrations and auditorium bookings</p>
+    </div>
+</div>
+
+<div class="card">
+    <h2>My Activities</h2>
+    <h3>Registered Events</h3>
+    {% if tickets %}
+        <table class="table">
+            <tr>
+                <th>Event</th>
+                <th>Date</th>
+                <th>Venue</th>
+                <th>Seat</th>
+                <th>Status</th>
+                <th>QR Code</th>
+            </tr>
+            {% for t in tickets %}
+            <tr>
+                <td>{{ t.event.title }}</td>
+                <td>{{ t.event.event_date }}</td>
+                <td>{{ t.event.venue }}</td>
+                <td>{{ t.seat|default:'—' }}</td>
+                <td>{{ t.get_status_display }}</td>
+                <td>
+                    {% if t.qr_code %}
+                        <img src="{{ t.qr_code.url }}" alt="Ticket QR Code" style="width:60px;height:60px;border:1px solid #ddd;padding:2px;">
+                    {% else %}
+                        <span style="color:var(--muted)">—</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>You have not registered for any events yet.</p>
+    {% endif %}
+
+    <h3 style="margin-top:18px">Auditorium Booking Requests</h3>
+    {% if bookings %}
+        <table class="table">
+            <tr>
+                <th>Purpose</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Capacity</th>
+                <th>Status</th>
+            </tr>
+            {% for b in bookings %}
+            <tr>
+                <td>
+                    {{ b.purpose }}
+                    {% if b.linked_event %}
+                        <div style="font-size:0.9rem;color:var(--muted)">Linked event: <a href="{% url 'event_detail' b.linked_event.pk %}">{{ b.linked_event.title }}</a></div>
+                    {% endif %}
+                </td>
+                <td>{{ b.event_date }}</td>
+                <td>{{ b.start_time }} – {{ b.end_time }}</td>
+                <td>{{ auditorium_capacity }}</td>
+                <td>{{ b.get_status_display }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No booking requests found.</p>
+    {% endif %}
+</div>
+{% endblock %}

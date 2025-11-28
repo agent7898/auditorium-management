@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- Event form background banner -->
+<div class="page-bg">
+    <div class="page-bg-content">
+        <h1>{{ title }}</h1>
+    </div>
+</div>
+
+<div class="card">
+    <h2>{{ title }}</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn" type="submit">Save</button>
+    </form>
+</div>
+{% endblock %}
