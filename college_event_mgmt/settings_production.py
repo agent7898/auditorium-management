@@ -1,6 +1,6 @@
 """
 Production settings for PythonAnywhere deployment.
-Username: auditorrium
+Username: auditorium
 """
 
 from .settings import *
@@ -9,13 +9,13 @@ from .settings import *
 DEBUG = False
 
 # PythonAnywhere domain
-ALLOWED_HOSTS = ['auditorrium.pythonanywhere.com']
+ALLOWED_HOSTS = ['auditorium.pythonanywhere.com']
 
 # Static files - for collectstatic command
-STATIC_ROOT = '/home/auditorrium/auditorium-management/staticfiles'
+STATIC_ROOT = '/home/auditorium/auditorium-management/staticfiles'
 
 # Media files
-MEDIA_ROOT = '/home/auditorrium/auditorium-management/media'
+MEDIA_ROOT = '/home/auditorium/auditorium-management/media'
 
 # Security settings for production
 CSRF_COOKIE_SECURE = True
